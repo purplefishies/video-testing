@@ -33,8 +33,6 @@ gst-launch-1.0 v4l2src ! jpegdec ! xvimagesink
 
 gst-device-monitor-1.0
 
-
-
 *** Generate the pipeline output
 #+begin_src bash
 export GST_DEBUG_DUMP_DOT_DIR=/tmp/
@@ -49,7 +47,10 @@ Reference
 
 *** Inspecting the pipeline
 
-
+Basic test
+#+begin_src bash
+gst-launch-1.0 videotestsrc ! ximagesink
+#+end_src
 ** Gstreamer Complex
 ** Gstreamer commands 
 #+begin_src bash
