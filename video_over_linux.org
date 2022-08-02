@@ -43,6 +43,10 @@ gst-launch-1.0 audiotestsrc num-buffers=1000 ! fakesink sync=false
 
 This will generate dot files in //tmp/
 
+Reference 
+
+[[https://developer.ridgerun.com/wiki/index.php/How_to_generate_a_Gstreamer_pipeline_diagram_%28graph%29][Generating a pipeline Dot image for Gstreamer]]
+
 *** Inspecting the pipeline
 
 
