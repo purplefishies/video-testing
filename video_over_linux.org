@@ -1,23 +1,52 @@
 
 * Gstreamer 
 
+** Examples
 
-** Sample commands
+*** Sample commands
 #+begin_src bash
 gst-launch -v videotestsrc ! queue ! ffenc_mpeg4 bitrate=800000 ! rtpmp4vpay ! tcpserversink host=<PC_ip> port=5000
 #+end_src
 
-** Web Cam test
+*** Web Cam test
 #+begin_src bash
 gst-launch-1.0 v4l2src ! jpegdec ! xvimagesink
 #+end_src
 
-
-** Video with RTSP 
+*** Video with RTSP 
 #+begin_src bash
 
 #+end_src
 
+** Getting Started
+
+*** How do you find devices for gstreamer
+:QUESTIONS:
+
+:END:
+:PROPERTIES:
+
+:END:
+
+
+
+
+gst-device-monitor-1.0
+
+
+
+*** Generate the pipeline output
+#+begin_src bash
+export GST_DEBUG_DUMP_DOT_DIR=/tmp/
+gst-launch-1.0 audiotestsrc num-buffers=1000 ! fakesink sync=false
+#+end_src
+
+This will generate dot files in //tmp/
+
+*** Inspecting the pipeline
+
+
+** Gstreamer Complex
 ** Gstreamer commands 
 #+begin_src bash
 gst-launch-1.0 imxv4l2videosrc fps=30000/1001 num-buffers=1 \ 
@@ -54,6 +83,11 @@ cd examples && ./test-launch "( videotestsrc ! x264enc ! rtph264pay name=pay0 pt
 #+end_src
 
 **** 
+
+** 4k tv support
+
+- [[https://forums.developer.nvidia.com/t/stream-4k-webcam-gstreamer/108025][Link to 4k nvidia Streaming]]
+- 
 
 * References 
 
