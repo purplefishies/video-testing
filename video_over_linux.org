@@ -1,15 +1,56 @@
-* Video notes
+
+* Gstreamer 
 
 
+** Sample commands
+#+begin_src bash
+gst-launch -v videotestsrc ! queue ! ffenc_mpeg4 bitrate=800000 ! rtpmp4vpay ! tcpserversink host=<PC_ip> port=5000
+#+end_src
 
-- Stuff
 
+** Video with RTSP 
+#+begin_src bash
 
-** Streams
+#+end_src
 
+** Gstreamer commands 
+#+begin_src bash
+gst-launch-1.0 imxv4l2videosrc fps=30000/1001 num-buffers=1 \ 
+! video/x-raw,format=UYVY,width=720,height=480,framerate=30000/1001,interlace-mode=interleaved,device-mode=interleaved \
+! vbiread \
+    name=vbi_read \
+    line-dup-enabled=true \
+    line-dup-top-start=3 line-dup-top-stop=33 \
+    line-dup-bot-start=433 line-dup-bot-stop=480 \
+    first-top-data-line=3 num-top-data-lines=30 \
+    first-bot-data-line=433 num-bot-data-lines=37 \
+    parse-audio-packets=true \
+    set-tff-flag=true \
+! imxipuvideotransform deinterlace=true \
+! filesink location=/home/root/capture_720x480.uyvy
+#+end_src
 
-** Lighttpd configurations
+** RTSP support
 
-** Video shows up as
+*** Build the RTSP Server
+#+begin_src bash
+git clone git://anongit.freedesktop.org/gstreamer/gst-rtsp-server && cd gst-rtsp-server
+git checkout remotes/origin/1.2
+./autogen.sh --noconfigure && GST_PLUGINS_GOOD_DIR=$(pkg-config --variable=pluginsdir gstreamer-plugins-bad-1.0) ./configure && make
+#+end_src
 
+Notes
+
+- GST_PLUGINS_GOOD_DIR is not set
+
+**** Testing
+#+begin_src 
+cd examples && ./test-launch "( videotestsrc ! x264enc ! rtph264pay name=pay0 pt=96 )"
+#+end_src
+
+**** 
+
+* References 
+
+- [[https://stackoverflow.com/questions/13744560/using-gstreamer-to-serve-rtsp-stream-working-example-sought][Stack Exchange and Using gstreamer to server RTSP stream]]
 
