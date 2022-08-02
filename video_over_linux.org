@@ -51,6 +51,28 @@ Basic test
 #+begin_src bash
 gst-launch-1.0 videotestsrc ! ximagesink
 #+end_src
+
+*** Error case
+#+begin_src bash
+gst-launch-1.0 videotestsrc ! "video/x-raw, width=500, height=500", format=GRAY8 ! ximagesink
+#+end_src
+
+Output
+#+begin_example
+Setting pipeline to PAUSED ...
+Pipeline is PREROLLING ...
+ERROR: from element /GstPipeline:pipeline0/GstVideoTestSrc:videotestsrc0: Internal data stream error.
+Additional debug info:
+gstbasesrc.c(3072): gst_base_src_loop (): /GstPipeline:pipeline0/GstVideoTestSrc:videotestsrc0:
+streaming stopped, reason not-negotiated (-4)
+#+end_example
+
+Need to convert the image to a format 
+
+*** Solution
+#+begin_src bash
+gst-launch-1.0 videotestsrc ! "video/x-raw, width=500, height=500", format=GRAY16_LE ! videoconvert ! ximagesink
+#+end_src
 ** Gstreamer Complex
 ** Gstreamer commands 
 #+begin_src bash
