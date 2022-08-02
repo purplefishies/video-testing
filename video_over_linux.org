@@ -7,6 +7,11 @@
 gst-launch -v videotestsrc ! queue ! ffenc_mpeg4 bitrate=800000 ! rtpmp4vpay ! tcpserversink host=<PC_ip> port=5000
 #+end_src
 
+** Web Cam test
+#+begin_src bash
+gst-launch-1.0 v4l2src ! jpegdec ! xvimagesink
+#+end_src
+
 
 ** Video with RTSP 
 #+begin_src bash
