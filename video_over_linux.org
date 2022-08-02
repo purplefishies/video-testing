@@ -73,6 +73,21 @@ Need to convert the image to a format
 #+begin_src bash
 gst-launch-1.0 videotestsrc ! "video/x-raw, width=500, height=500", format=GRAY16_LE ! videoconvert ! ximagesink
 #+end_src
+
+*** Inspecting the videotestsrc
+
+#+begin_src bash
+gst-inspect-1.0 videotestsrc
+#+end_src
+
+*** Adding timeoverlay
+#+begin_src bash
+gst-launch-1.0 videotestsrc pattern=checkers-8 flip=true \
+do-timestamp=true ! timeoverlay halignment=right valignment=bottom \
+text="Stream time:" shaded-background=true font-desc="Sans, 24" ! \
+video/x-raw, width=500, height=500 ! xvimagesink
+#+end_src
+
 ** Gstreamer Complex
 ** Gstreamer commands 
 #+begin_src bash
