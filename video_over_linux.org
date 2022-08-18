@@ -124,12 +124,30 @@ Notes
 cd examples && ./test-launch "( videotestsrc ! x264enc ! rtph264pay name=pay0 pt=96 )"
 #+end_src
 
-**** 
+**** Sample code
+#+begin_src c++
+const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
+                        "! multipartdemux "
+                        "   boundary=frame "
+                        "! seescan-exif-demux "
+                        "   do-timestamp=true "
+                        "! capsfilter "
+                        "   caps=image/jpeg,width=640,height=480,framerate=30/1 "
+                        "! rtpjpegpay "
+                        "   name=pay0 "
+                        "   pt=26 )";
+#endif
+#+end_src
 
-** 4k tv support
+** k4 tv support
 
 - [[https://forums.developer.nvidia.com/t/stream-4k-webcam-gstreamer/108025][Link to 4k nvidia Streaming]]
-- 
+-
+
+
+** Measuring frame rates
+
+
 
 * References 
 
