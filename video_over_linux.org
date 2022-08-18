@@ -139,6 +139,16 @@ const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
 #endif
 #+end_src
 
+
+***** rtpjpegpay
+
+- Encodes JPEG into RTP packets ( RTC-2435 )
+
+- Scans the header for quantization tables
+
+- Motion jpeg through RTSP
+
+
 ** k4 tv support
 
 - [[https://forums.developer.nvidia.com/t/stream-4k-webcam-gstreamer/108025][Link to 4k nvidia Streaming]]
