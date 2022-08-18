@@ -106,6 +106,14 @@ gst-launch-1.0 imxv4l2videosrc fps=30000/1001 num-buffers=1 \
 ! filesink location=/home/root/capture_720x480.uyvy
 #+end_src
 
+
+#+begin_src bash
+gst-launch-1.0 videotestsrc pattern = 21 ! "video/x-raw, width=500, height=500", format=I420 ! xvimagesink
+#+end_src
+
+
+
+
 ** RTSP support
 
 *** Build the RTSP Server
@@ -150,10 +158,8 @@ const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
 
 
 ** k4 tv support
-
 - [[https://forums.developer.nvidia.com/t/stream-4k-webcam-gstreamer/108025][Link to 4k nvidia Streaming]]
 -
-
 
 ** Measuring frame rates
 
