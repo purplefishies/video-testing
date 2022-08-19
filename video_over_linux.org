@@ -80,6 +80,11 @@ gst-launch-1.0 videotestsrc ! "video/x-raw, width=500, height=500", format=GRAY1
 gst-inspect-1.0 videotestsrc
 #+end_src
 
+*** Inspecting a camera
+
+#+begin_src bash
+gst-inspect-1.0 nvarguscam 
+#+end_src
 *** Adding timeoverlay
 #+begin_src bash
 gst-launch-1.0 videotestsrc pattern=checkers-8 flip=true \
@@ -110,7 +115,10 @@ gst-launch-1.0 imxv4l2videosrc fps=30000/1001 num-buffers=1 \
 #+begin_src bash
 gst-launch-1.0 videotestsrc pattern = 21 ! "video/x-raw, width=500, height=500", format=I420 ! xvimagesink
 #+end_src
-
+*** Listing all plugins
+#+begin_src bash
+gst-inspect-1.0 --print-all
+#+end_src
 
 
 
@@ -156,13 +164,11 @@ const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
 
 - Motion jpeg through RTSP
 
-
 ** k4 tv support
 - [[https://forums.developer.nvidia.com/t/stream-4k-webcam-gstreamer/108025][Link to 4k nvidia Streaming]]
 -
 
 ** Measuring frame rates
-
 
 
 * References 
