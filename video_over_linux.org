@@ -170,6 +170,10 @@ const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
 
 ** Measuring frame rates
 
+** Webcam Starting
+#+begin_src bash
+gst-launch-1.0 v4l2src ! jpegdec ! xvimagesink # Get cam video from gstreamer
+#+end_src
 
 * References 
 
