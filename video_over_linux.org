@@ -13,6 +13,10 @@ gst-launch -v videotestsrc ! queue ! ffenc_mpeg4 bitrate=800000 ! rtpmp4vpay ! t
 gst-launch-1.0 v4l2src ! jpegdec ! xvimagesink
 #+end_src
 
+
+*** Saving video to file
+
+
 *** Video with RTSP 
 #+begin_src bash
 
@@ -121,7 +125,6 @@ gst-inspect-1.0 --print-all
 #+end_src
 
 
-
 ** RTSP support
 
 *** Build the RTSP Server
@@ -173,6 +176,90 @@ const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
 ** Webcam Starting
 #+begin_src bash
 gst-launch-1.0 v4l2src ! jpegdec ! xvimagesink # Get cam video from gstreamer
+#+end_src
+
+
+** Discover video file
+#+begin_src bash
+gst-discoverer-1.0 -v test1.avi   
+#+end_src
+#+begin_quote
+Analyzing file:///home/jimi_damon/test1.avi                                                                                   
+Done discovering file:///home/jimi_damon/test1.avi                                                                            
+                                                                                                                              
+Topology:                                                                                                                     
+  container: video/x-msvideo                                   
+    video: video/x-h264, variant=(string)itu, framerate=(fraction)30/1, width=(int)1920, height=(int)1080, interlace-mode=(str
+ing)progressive, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8, parsed=(boolean)true, stream-f
+ormat=(string)avc, alignment=(string)au, profile=(string)constrained-baseline, level=(string)1, codec_data=(buffer)0142e00affe
+1001a2742e00a898d503c0113f2c2000003000200000300781e2c4b7001000428ce3c80                                                       
+      Tags:            
+        video codec: ITU H.264 
+        bitrate: 10084689                                      
+        container format: AVI                                  
+                                   
+...
+Properties:
+  Duration: 0:00:05.000000000
+  Seekable: yes
+  Live: no
+  Tags: 
+      video codec: ITU H.264
+      bitrate: 10084689
+      container format: AVI
+#+end_quote
+
+
+** Video tests
+#+begin_src bash
+gst-launch-1.0 -v videotestsrc ! videorate ! video/x-raw,framerate=30/1 ! videoconvert ! autovideosink
+#+end_src
+
+
+#+begin_src bash
+gst-launch-1.0 '( v4l2src device=/dev/video0 ! image/jpeg,width=800,height=600 ! jpegparse ! rtpjpegpay name=pay0 pt=96 )'
+
+#+end_src
+
+$ ./builddir/subprojects/gst-rtsp-server/examples/test-launch 
+
+
+*** Experiment 
+
+Host 1, jpeg  ->   Host2 decode and display xvideo
+
+**** Host 1
+
+#+begin_src bash
+gst-launch-1.0 v4l2src device=/dev/video0 ! jpegenc  ! rtpjpegpay ! tcpserversink host=127.0.0.1 port=4000
+#+end_src
+
+**** Host2
+
+Sink works
+#+begin_src bash
+gst-launch-1.0 tcpclientsrc host=127.0.0.1 port=4000  ! fdsink fd=2
+
+#+end_src
+
+
+gst-launch-1.0 tcpclientsrc host=127.0.0.1 port=4000  ! rtpjpegdepay ! fdsink fd=2
+
+
+
+
+** UDP sink
+
+#+begin_src bash
+gst-launch-1.0 -v videotestsrc ! videorate ! video/x-raw,framerate=30/1 ! \
+   x264enc tune=zerolatency bitrate=16000000 speed-preset=superfast ! \
+   rtph264pay ! udpsink port=5000 host=127.0.0.1
+#+end_src
+
+*** How do you connect to udpsink with VLC                                    :question:
+
+#+begin_src bash
+vlc -vvv rtp://127.0.0.1:5000 
 #+end_src
 
 * References 
