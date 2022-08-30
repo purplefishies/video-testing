@@ -245,7 +245,19 @@ gst-launch-1.0 tcpclientsrc host=127.0.0.1 port=4000  ! fdsink fd=2
 
 gst-launch-1.0 tcpclientsrc host=127.0.0.1 port=4000  ! rtpjpegdepay ! fdsink fd=2
 
+*** Example2
+#+begin_src bash
+gst-launch-1.0  v4l2src device=/dev/video0 ! image/jpeg,width=800,height=600 ! jpegparse ! rtpjpegpay name=pay0 pt=96 
+#+end_src
 
+
+*** RTSP stuff
+
+**** Discovery about differences in files
+
+[[https://forums.developer.nvidia.com/t/how-to-send-video-stream-over-udp-network-by-rtp/157602/28?page=2][test-launch.c differences]]
+
+**** 
 
 
 ** UDP sink
