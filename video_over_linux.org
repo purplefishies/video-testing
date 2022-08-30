@@ -260,6 +260,115 @@ gst-launch-1.0  v4l2src device=/dev/video0 ! image/jpeg,width=800,height=600 ! j
 **** 
 
 
+
+**** Problems
+#+begin_src bash
+./test-launch --gst-debug=3 '( videotestsrc ! image/jpeg,width=800,height=600 ! jpegparse ! rtpjpegpay name=pay0 pt=96 ')
+#+end_src
+
+
+Can't connect a videotestsrc to image/jpeg,width=800,height=600
+
+
+
+*** Send Receive 
+
+#+begin_src bash
+gst-launch-1.0 videotestsrc ! videoconvert ! video/x-raw, format=YUY2 ! jpegenc ! rtpjpegpay ! udpsink host=127.0.0.1 port=5000
+#+end_src
+
+#+begin_src bash
+gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, media=video, encoding-name=JPEG, framerate=30/1, payload=26, clock-rate=90000 ! rtpjpegdepay ! jpegdec ! videoconvert ! autovideosink
+
+#+end_src
+
+
+*** VLC SDP file
+
+- [[https://forums.developer.nvidia.com/t/streaming-udp-from-gstreamer-to-vlc/175827/3][Link]]
+
+#+begin_quote
+you may try this on receiver end:
+
+gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert ! xvimagesink
+
+For VLC, there might be another way to set payload (maybe a sdp file).
+#+end_quote
+
+
+#+begin_quote
+Save this to file test_mjpg.sdp on your mac:
+
+m=video 5000 RTP/AVP 26
+c=IN IP4 192.168.0.40
+a=rtpmap:26 JPEG/90000
+and try to open this file from VLC:
+
+vlc test_mjpg.sdp
+#+end_quote
+
+
+**** Example2 
+#+begin_src bash
+gst-launch-1.0 v4l2src device=/dev/video0 ! 'image/jpeg,width=640,height=480,framerate=30/1'  ! jpegdecaa  ! fdsink fd=2
+#+end_src
+
+
+gst-launch-1.0 v4l2src device=/dev/video0  ! 'image/jpeg,width=640,height=480,framerate=30/1' ! fdsink fd=2
+
+
+
+gst-launch-1.0 v4l2src device=/dev/video0  ! 'image/jpeg,width=640,height=480,framerate=30/1' ! jpegdec ! xvimagesink
+
+#+begin_src bash
+gst-launch-1.0 v4l2src device=/dev/video0  ! \
+'image/jpeg,width=640,height=480,framerate=30/1' ! \
+jpegdec ! \
+ timeoverlay  halignment=right valignment=bottom text="Stream time:" shaded-background=true font-desc="Sans, 24"  ! xvimagesink
+#+end_src
+
+
+#+begin_src bash
+gst-launch-1.0 v4l2src device=/dev/video0  ! \
+'image/jpeg,width=640,height=480,framerate=30/1' ! \
+jpegdec ! \
+ timeoverlay  halignment=right valignment=bottom text="Stream time:" shaded-background=true font-desc="Sans, 24"  ! xvimagesink
+#+end_src
+
+
+
+#+begin_src bash
+gst-launch-1.0 v4l2src device=/dev/video0 ! 'image/jpeg,width=640,height=480,framerate=30/1' ! 
+jpegdec ! 
+timeoverlay halign=right valign=bottom ! 
+clockoverlay halign=left valign=bottom time-format="%Y/%m/%d %H:%M:%S" ! 
+tee name=t ! 
+queue ! 
+sdlvideosink t. ! 
+queue ! 
+videorate ! 
+capsfilter caps="video/x-raw-yuv,framerate=1/1" ! 
+ffmpegcolorspace ! 
+jpegenc ! 
+multifilesink location="./Desktop/frames/frame%06d.jpg" _=#+end_src
+
+**** a
+
+**** Example3
+
+
+- [[https://forums.developer.nvidia.com/t/streaming-udp-from-gstreamer-to-vlc/175827/6][Link]]
+
+#+begin_src bash
+# Server
+gst-launch-1.0 -v v4l2src device=/dev/video1 ! "image/jpeg, width=1920, height-1080, framerate=30/1"a ! rtpjpegpay ! udpsink host=$CLIENT_IP port=5000
+
+
+
+#CLIENT:
+gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert ! autovideosink
+#+end_src
+
 ** UDP sink
 
 #+begin_src bash
