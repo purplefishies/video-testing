@@ -359,6 +359,12 @@ clockoverlay halignment=left valignment=bottom time-format="%Y/%m/%d %H:%M:%S" !
 xvimagesink
 #+end_src
 
+**** Working example using test-launch.c
+
+#+begin_src bash
+test-launch --gst-debug=3 '( v4l2src ! videorate ! capsfilter caps="video/x-raw,framerate=25/2" ! jpegenc ! rtpjpegpay name=pay0 pt=96 )'
+#+end_src
+
 
 ***** Can we store information in the video stream so that it's searchable outside of the file 
 
@@ -407,6 +413,18 @@ gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, payload=26 ! rtpjpegdepay !
 #+end_src
 
 **** SDL Simple Directmedia layer
+
+
+** Nick & UI
+
+*** CCU's to select the 
+
+
+*** CCU's and the camera endpoint remote vs local
+
+- the options need to be setup around that
+
+- 
 
 
 ** UDP sink
