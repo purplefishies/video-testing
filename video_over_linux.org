@@ -365,7 +365,6 @@ xvimagesink
 test-launch --gst-debug=3 '( v4l2src ! videorate ! capsfilter caps="video/x-raw,framerate=25/2" ! jpegenc ! rtpjpegpay name=pay0 pt=96 )'
 #+end_src
 
-
 ***** Can we store information in the video stream so that it's searchable outside of the file 
 
 
@@ -414,17 +413,9 @@ gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, payload=26 ! rtpjpegdepay !
 
 **** SDL Simple Directmedia layer
 
+** Socat Resource
 
-** Nick & UI
-
-*** CCU's to select the 
-
-
-*** CCU's and the camera endpoint remote vs local
-
-- the options need to be setup around that
-
-- 
+[[https://blog.travismclarke.com/post/socat-tutorial/][Socat Cheat sheet]]
 
 
 ** UDP sink
