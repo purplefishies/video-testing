@@ -171,7 +171,29 @@ const char* pipeline =  "( tcpclientsrc host=localhost port=4000 "
 - [[https://forums.developer.nvidia.com/t/stream-4k-webcam-gstreamer/108025][Link to 4k nvidia Streaming]]
 -
 
-** Measuring frame rates
+
+
+** Basic Stream
+
+Where do we get our video from ? 
+
+- Hqximage server
+- Pipeline setup    [[file:~/Projects/work/hqxhub-video-streamer/src/streamer/GStreamerOutputBin.cpp::static const char *pipeline_format = \ "tee name=input_tee \ input_tee. \ ! queue \ leaky=2 \ max-size-buffers=1 \ ! multipartmux \ name=multipart_mux \ boundary=frame \ ! tcpserversink \ name=tcpserver_sink \ host=%s \ port=%d \ buffers-max=600 \ buffers-soft-max=%d \ recover-policy=3 \ timeout=30000000000 \ input_tee. \ ! queue \ leaky=2 \ max-size-buffers=1 \ ! appsink \ name=jpeg_sink \ ";]]
+- 
+
+*** Encoding in to MotionJPEG
+#+begin_src bash
+
+#+end_src
+
+
+*** Decoding
+#+begin_src bash
+gst-launch-1.0 -v rtspsrc location=rtsp://192.168.8.1:8554/stream latency=100 ! rtpjpegdepay ! decodebin ! xvimagesink
+#+end_src
+
+
+*** Measuring frame rates
 
 ** Webcam Starting
 #+begin_src bash
@@ -242,8 +264,10 @@ gst-launch-1.0 tcpclientsrc host=127.0.0.1 port=4000  ! fdsink fd=2
 
 #+end_src
 
-
+#+begin_src bash
 gst-launch-1.0 tcpclientsrc host=127.0.0.1 port=4000  ! rtpjpegdepay ! fdsink fd=2
+#+end_src
+
 
 *** Example2
 #+begin_src bash
@@ -257,34 +281,16 @@ gst-launch-1.0  v4l2src device=/dev/video0 ! image/jpeg,width=800,height=600 ! j
 
 [[https://forums.developer.nvidia.com/t/how-to-send-video-stream-over-udp-network-by-rtp/157602/28?page=2][test-launch.c differences]]
 
-**** 
-
-
 
 **** Problems
 #+begin_src bash
 ./test-launch --gst-debug=3 '( videotestsrc ! image/jpeg,width=800,height=600 ! jpegparse ! rtpjpegpay name=pay0 pt=96 ')
 #+end_src
 
-
 Can't connect a videotestsrc to image/jpeg,width=800,height=600
 
 
-
-*** Send Receive 
-
-#+begin_src bash
-gst-launch-1.0 videotestsrc ! videoconvert ! video/x-raw, format=YUY2 ! jpegenc ! rtpjpegpay ! udpsink host=127.0.0.1 port=5000
-#+end_src
-
-#+begin_src bash
-gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, media=video, encoding-name=JPEG, framerate=30/1, payload=26, clock-rate=90000 ! rtpjpegdepay ! jpegdec ! videoconvert ! autovideosink
-
-#+end_src
-
-
 *** VLC SDP file
-
 - [[https://forums.developer.nvidia.com/t/streaming-udp-from-gstreamer-to-vlc/175827/3][Link]]
 
 #+begin_quote
@@ -346,8 +352,6 @@ jpegdec ! \
  timeoverlay  halignment=right valignment=bottom text="Stream time:" shaded-background=true font-desc="Sans, 24"  ! \
 clockoverlay halignment=left valignment=bottom time-format="%Y/%m/%d %H:%M:%S" ! \
 xvimagesink
-
-
 #+end_src
 
 #+begin_src bash
@@ -358,6 +362,7 @@ timeoverlay  halignment=right valignment=bottom ! \
 clockoverlay halignment=left valignment=bottom time-format="%Y/%m/%d %H:%M:%S" ! \
 xvimagesink
 #+end_src
+
 
 **** Working example using test-launch.c
 
@@ -391,10 +396,9 @@ multifilesink location="./Desktop/frames/frame%06d.jpg"
 gst-launch-1.0 v4l2src ! \
   videorate ! \
   capsfilter caps="video/x-raw,framerate=25/2"  ! \
-  jpegenc  ! \
+ x jpegenc  ! \
   tee name=t ! queue ! multifilesink location="./Desktop/frames/frame%06d.jpg" t. ! queue ! filesink location=jpegoutput.jpg
 #+end_src
-
 
 **** Example3
 
@@ -402,21 +406,110 @@ gst-launch-1.0 v4l2src ! \
 - [[https://forums.developer.nvidia.com/t/streaming-udp-from-gstreamer-to-vlc/175827/6][Link]]
 
 #+begin_src bash
-# Server
-gst-launch-1.0 -v v4l2src device=/dev/video1 ! "image/jpeg, width=1920, height-1080, framerate=30/1"a ! rtpjpegpay ! udpsink host=$CLIENT_IP port=5000
-
-
+gst-launch-1.0 -v v4l2src device=/dev/video1 ! "image/jpeg, width=1920, height-1080, framerate=30/1" ! rtpjpegpay ! udpsink host=$CLIENT_IP port=5000
+#+end_src
 
 #CLIENT:
+#+begin_src bash
 gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert ! autovideosink
 #+end_src
 
 **** SDL Simple Directmedia layer
+**** C API
+
+Genereating dot files from C code
+
+- [[https://www.freedesktop.org/software/gstreamer-sdk/data/docs/latest/gstreamer-0.10/gstreamer-GstInfo.html][Link]]
+#+begin_src c++
+    gst_debug_bin_to_dot_file(GST_BIN(container_bin),GST_DEBUG_GRAPH_SHOW_ALL, "/tmp/output.dot");
+#+end_src
+
+
+***** Extra parameters
+
+- [[https://gstreamer.freedesktop.org/documentation/gstreamer/debugutils.html?gi-language=c#GstDebugGraphDetails][Link]]
+
+| Variable                                    | Description                                                                                    |
+|---------------------------------------------+------------------------------------------------------------------------------------------------+
+| GST_DEBUG_GRAPH_SHOW_MEDIA_TYPE (1)         | show caps-name on edges                                                                        |
+| GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS (2)       | show caps-details on edges                                                                     |
+| GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS (4) | show modified parameters on elements                                                           |
+| GST_DEBUG_GRAPH_SHOW_STATES (8)             | show element states                                                                            |
+| GST_DEBUG_GRAPH_SHOW_FULL_PARAMS (16)       | show full element parameter values even if they are very long                                  |
+| GST_DEBUG_GRAPH_SHOW_ALL (15)               | show all the typical details that one might want                                               |
+| GST_DEBUG_GRAPH_SHOW_VERBOSE (4294967295)   | show all details regardless of how large or verbose they make the resulting output             |
+
+
+**** Andris Decoding the MJPEG over RTSP
+
+#+begin_src bash
+gst-launch-1.0 -v rtspsrc location=rtsp://192.168.8.1:8554/stream latency=100 ! rtpjpegdepay ! decodebin ! autovideosink
+#+end_src
+
+
+***** How do we measure the frame rates
+
+
+
+*** Debugging Gstreamer                                                       :debug:
+#+begin_src bash
+export GST_DEBUG=videorate:5
+gst-launch-1.0 v4l2src ! videorate ! capsfilter caps="video/x-raw,framerate=25/2"  ! fakesink sync=false
+
+#+end_src
+
+
+**** Output
+#+begin_quote
+...
+0:00:12.890191606 45759 0x56337f8a60c0 DEBUG              videorate gstvideorate.c:1358:gst_video_rate_transform_ip:<videorate0> got buffer with timestamp 0:00:12.670191376
+0:00:12.990168957 45759 0x56337f8a60c0 DEBUG              videorate gstvideorate.c:1358:gst_video_rate_transform_ip:<videorate0> got buffer with timestamp 0:00:12.770145899
+0:00:13.090213333 45759 0x56337f8a60c0 DEBUG              videorate gstvideorate.c:1358:gst_video_rate_transform_ip:<videorate0> got buffer with timestamp 0:00:12.870428909
+0:00:13.190164972 45759 0x56337f8a60c0 DEBUG              videorate gstvideorate.c:1358:gst_video_rate_transform_ip:<videorate0> got buffer with timestamp 0:00:12.970216792
+...
+#+end_quote
+
+**** Debugging only Python
+
+#+begin_src bash
+GST_DEBUG=python:6 gst-launch-1.0 videotestsrc ! \
+   gstplugin_py int-prop=100 float-prop=0.2 bool-prop=True str-prop="set" ! \
+   fakesink 2> file.txt
+#+end_src
+
+**** Logging without taking up tons of space
+#+begin_src bash
+GST_DEBUG=audiotestsrc:5 gst-launch-1.0 audiotestsrc ! fakesink 2> file.txt
+#+end_src
+
+
+*** Python Gstreamer
+
+- Need to build the plugin
+- [[https://lifestyletransfer.com/how-to-write-gstreamer-plugin-with-python/][Python Gstreamer Link]]
+
+
+*** Recording using ffmpeg
+#+begin_src bash
+ffmpeg -i rtsp:10.35.77.43:8000/live -metadata title="HR50" -acodec copy -bsf:a aac_adtstoasc -r 29.970 c:\test\test.mp4
+#+end_src
+
+*** Send Receive 
+
+
+#+begin_src bash
+gst-launch-1.0 videotestsrc ! videoconvert ! video/x-raw, format=YUY2 ! jpegenc ! rtpjpegpay ! udpsink host=127.0.0.1 port=5000
+#+end_src
+
+#+begin_src bash
+gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, media=video, encoding-name=JPEG, framerate=30/1, payload=26, clock-rate=90000 ! rtpjpegdepay ! jpegdec ! videoconvert ! autovideosink
+
+#+end_src
+
 
 ** Socat Resource
 
 [[https://blog.travismclarke.com/post/socat-tutorial/][Socat Cheat sheet]]
-
 
 ** UDP sink
 
@@ -431,6 +524,62 @@ gst-launch-1.0 -v videotestsrc ! videorate ! video/x-raw,framerate=30/1 ! \
 #+begin_src bash
 vlc -vvv rtp://127.0.0.1:5000 
 #+end_src
+
+
+
+** Additional Topics
+
+*** Multicast
+
+Links
+
+- [[https://netref.soe.ucsc.edu/node/37][Setting up Multicast and testing it on Linux]]
+
+- 
+
+
+
+**** Joining the network
+
+- IGMP
+
+-
+
+
+*** Why do security cameras use RTSP
+*** RTCP 
+
+Real time control protocol 
+
+packets are sent back to the server to convey feedback about the
+quality of data delivery
+
+
+5 types
+
+Receiver report
+
+Sender report
+
+Source description
+
+
+Bye
+
+App specific functions
+
+
+ - QOS monitoring
+
+ - Source identification
+
+ - Inter-media Sync
+
+ - 
+
+
+
+
 
 * References 
 
